@@ -81,15 +81,20 @@ data "aws_vpc" "default" {
 
 # --- Instancia EC2 con Ubuntu Server ---
 resource "aws_instance" "public_instance" {
-  ami                    = var.ami_id
-  instance_type          = var.instance_type
-  key_name               = aws_key_pair.key_pair.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.key_pair.key_name
+  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  associate_public_ip_address = true
+
 
   user_data = templatefile("${path.module}/scripts/setup.sh", {
     repo_url    = var.repo_url
     repo_branch = var.repo_branch
+    secret_jwt  = var.secret_jwt
+    mongo_uri   = var.mongo_uri
   })
+
 
   tags = {
     Name = "ubuntu-node-server"

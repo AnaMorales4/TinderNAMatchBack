@@ -33,3 +33,13 @@ variable "repo_branch" {
   type        = string
   default     = "main"
 }
+
+variable "secret_jwt" {
+  description = "JWT secret for the Node.js app"
+  type        = string
+}
+
+variable "mongo_uri" {
+  description = "MongoDB connection URI"
+  type        = string
+}

@@ -3,7 +3,6 @@
 # Setup Node.js App en Ubuntu
 # ========================
 
-# Habilitar modo estricto
 set -e
 
 # Actualiza e instala dependencias
@@ -27,6 +26,14 @@ cd app
 
 # Instala dependencias del proyecto
 npm install
+
+# Crear archivo .env con las variables de entorno
+echo  SECRET_JWT=${secret_jwt} > /home/ubuntu/app/.env
+echo  MONGO_URI=${mongo_uri}  >> /home/ubuntu/app/.env
+
+# Asegura permisos
+chown ubuntu:ubuntu /home/ubuntu/app/.env
+chmod 600 /home/ubuntu/app/.env
 
 # Cambia propietario de los archivos a ubuntu (por si se ejecuta como root)
 chown -R ubuntu:ubuntu /home/ubuntu/app /home/ubuntu/.pm2 || true
