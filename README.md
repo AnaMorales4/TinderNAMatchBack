@@ -28,3 +28,12 @@ add to the .env of the backend:
 SECRET_JWT=esteesmijwtkey
 
 MONGO_URI=mongodb://localhost:27017/mydatabase
+
+Añadir credenciales de aws desde variables de entorno como:
+export AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
+export AWS_DEFAULT_REGION="us-east-2"
+
+Tambien se lanza el comando:
+
+terraform apply -auto-approve   -var="repo_url=https://github.com/AnaMorales4/TinderNAMatchBack.git"   -var="repo_branch=main"

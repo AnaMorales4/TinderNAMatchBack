@@ -87,3 +87,9 @@ resource "aws_instance" "public_instance" {
     Name = "ubuntu-node-server"
   }
 }
+
+
+resource "aws_eip_association" "backend_assoc" {
+  instance_id   = aws_instance.public_instance.id
+  allocation_id = aws_eip.backend_ip.id
+}

@@ -41,3 +41,12 @@ build/
 coverage/
 
 package-lock.json
+
+*.pem
+
+*.backup
+
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
