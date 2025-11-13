@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage",
-    "dev": "node --watch app.js"
+    "dev": "node --watch app.js",
+    "start:api": "node app.js",
+    "start:ws": "node ws.js"
   },
   "author": "sebasrpg1232, nikol Henao, mariana ospina, ana maria cossio",
   "license": "ISC",

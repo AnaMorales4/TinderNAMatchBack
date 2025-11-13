@@ -2,38 +2,32 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
+
+
 const authRoutes = require('./routes/authRoutes')
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const connectDB = require('./db');
 
-const http = require('http');
-const { Server } = require('socket.io');
-const socketController = require('./controllers/socketController');
 
 //swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./documentation/swagger');
 
-
-const app = express();
 dotenv.config();
 
-const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST']
-    }
-});
+const app = express();
 
-const PORT = process.env.PORT || 3000;
+//un puerto para la API: Puse el que tenemos en la imagen de la arquitectura jeje
+const PORT = process.env.API_PORT || process.env.PORT || 8000;
 
 //Middlewares
-app.use(cors({
-    origin: '*',
-    credentials: false
+app.use(
+    cors({
+        origin: '*',
+        credentials: true
 }));
+
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -43,14 +37,16 @@ app.use('/api/users', userRoutes);
 //app.use("/chat", chatRoutes);
 app.use('/api', authRoutes);
 
-try {
-    connectDB().then();
-} catch (e) {
-    console.log(e)
+async function startApi() {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`API server running at http://localhost:${PORT}`);
+    });
+  } catch (e) {
+    console.error('Error starting API server:', e);
+    process.exit(1);
+  }
 }
 
-socketController(io);
-
-server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-});
+startApi();
