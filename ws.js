@@ -1,38 +1,84 @@
-const dotenv = require('dotenv');
-const http = require('http');
-const { Server } = require('socket.io');
+const WebSocket = require("ws");
+const connectDB = require("./db"); // your DB connection file
+const ChatMessage = require("./models/ChatMessage");
+const Match = require("./models/user");
 
-const connectDB = require('./db');
-const socketController = require('./controllers/socketController');
-const path = require('path');
-
-dotenv.config();
-
-//Puse el puerto que tenemos en la imagen de la arquitectura jeje
 const PORT = process.env.WS_PORT || 8001;
 
 async function startWebSocket() {
   try {
+    // 1️⃣ Connect to MongoDB
     await connectDB();
+    console.log("MongoDB connected successfully");
 
-    const server = http.createServer();
+    // 2️⃣ Create WebSocket server
+    const wss = new WebSocket.Server({ port: PORT, path: "/chat" });
 
-    const io = new Server(server, {
-      path: '/chat',
-      cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-        credentials: true,
-      },
+    wss.on("connection", (ws) => {
+      console.log("Client connected");
+
+      ws.on("message", async (msg) => {
+        const data = JSON.parse(msg);
+
+        switch (data.type) {
+          case "join":
+            ws.userId = data.senderId;
+            break;
+
+          case "load history":
+            const { senderId, receiverId } = data;
+            const senderUserInfo = await Match.findById(senderId);
+            const receiverUserInfo = await Match.findById(receiverId);
+            if (!senderUserInfo || !receiverUserInfo) return;
+
+            const hasMatch =
+              senderUserInfo.matches.includes(receiverId) ||
+              receiverUserInfo.matches.includes(senderId);
+
+            const history = hasMatch
+              ? await ChatMessage.find({
+                $or: [
+                  { senderId, receiverId },
+                  { senderId: receiverId, receiverId: senderId },
+                ],
+              })
+                .sort({ timestamp: 1 })
+                .populate("senderId", "name")
+                .populate("receiverId", "name")
+              : [];
+
+            ws.send(JSON.stringify({ type: "history", history }));
+            break;
+
+          case "chat message":
+            const saved = await ChatMessage.create({
+              senderId: data.senderId,
+              receiverId: data.receiverId,
+              text: data.text,
+            });
+
+            const populated = await ChatMessage.findById(saved._id)
+              .populate("senderId", "name")
+              .populate("receiverId", "name");
+
+            wss.clients.forEach(client => {
+              if (
+                client.readyState === WebSocket.OPEN &&
+                [data.senderId, data.receiverId].includes(client.userId)
+              ) {
+                client.send(JSON.stringify({ type: "chat message", msg: populated }));
+              }
+            });
+            break;
+        }
+      });
+
+      ws.on("close", () => console.log("Client disconnected"));
     });
 
-    socketController(io);
-
-    server.listen(PORT, () => {
-      console.log(`WebSocket server running on port ${PORT}`);
-    });
+    console.log(`Raw WebSocket server running on ws://localhost:${PORT}/chat`);
   } catch (err) {
-    console.error('Error starting WebSocket server:', err);
+    console.error("Error starting WebSocket server:", err);
     process.exit(1);
   }
 }

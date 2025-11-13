@@ -29,7 +29,7 @@ resource "aws_apigatewayv2_route" "message_route" {
 # Integración con la EC2 WebSocket
 resource "aws_apigatewayv2_integration" "ws_integration" {
   api_id             = aws_apigatewayv2_api.ws_api.id
-  integration_type   = "WEBSOCKET_PROXY"
+  integration_type   = "HTTP_PROXY"
   integration_method = "ANY"
   integration_uri    = "http://${aws_eip.ws_ip.public_ip}:8001/"
 }
