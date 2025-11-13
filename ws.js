@@ -18,8 +18,8 @@ async function startWebSocket() {
     const server = http.createServer();
 
     const io = new Server(server, {
-        path: '/chat',
-        cors: {
+      path: '/chat',
+      cors: {
         origin: '*',
         methods: ['GET', 'POST'],
         credentials: true,
