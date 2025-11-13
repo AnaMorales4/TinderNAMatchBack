@@ -57,9 +57,14 @@ sudo -u ubuntu -i bash <<'EOF'
 export HOME=/home/ubuntu
 cd /home/ubuntu/app
 
+set -a
+source /home/ubuntu/app/.env
+set +a
+
+
 # Reinicia o inicia la app con PM2
 pm2 delete node-backend || true
-pm2 start "npm run dev" --name node-backend
+pm2 start "npm run start:ws" --name node-backend
 
 # Guarda configuración y arranque automático
 pm2 save

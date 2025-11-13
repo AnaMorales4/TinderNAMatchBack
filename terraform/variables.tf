@@ -31,7 +31,7 @@ variable "repo_url" {
 variable "repo_branch" {
   description = "Branch del repositorio"
   type        = string
-  default     = "main"
+  default     = "master"
 }
 
 variable "secret_jwt" {
