@@ -53,41 +53,41 @@ resource "aws_api_gateway_integration" "api_integration" {
 # /ws/{proxy+}
 # ==========================================================
 
-resource "aws_api_gateway_resource" "ws_proxy" {
-  rest_api_id = aws_api_gateway_rest_api.node_api.id
-  parent_id   = aws_api_gateway_rest_api.node_api.root_resource_id
-  path_part   = "ws"
-}
+# resource "aws_api_gateway_resource" "ws_proxy" {
+#   rest_api_id = aws_api_gateway_rest_api.node_api.id
+#   parent_id   = aws_api_gateway_rest_api.node_api.root_resource_id
+#   path_part   = "ws"
+# }
 
-resource "aws_api_gateway_resource" "ws_proxy_subpath" {
-  rest_api_id = aws_api_gateway_rest_api.node_api.id
-  parent_id   = aws_api_gateway_resource.ws_proxy.id
-  path_part   = "{proxy+}"
-}
+# resource "aws_api_gateway_resource" "ws_proxy_subpath" {
+#   rest_api_id = aws_api_gateway_rest_api.node_api.id
+#   parent_id   = aws_api_gateway_resource.ws_proxy.id
+#   path_part   = "{proxy+}"
+# }
 
-resource "aws_api_gateway_method" "ws_any" {
-  rest_api_id   = aws_api_gateway_rest_api.node_api.id
-  resource_id   = aws_api_gateway_resource.ws_proxy_subpath.id
-  http_method   = "ANY"
-  authorization = "NONE"
+# resource "aws_api_gateway_method" "ws_any" {
+#   rest_api_id   = aws_api_gateway_rest_api.node_api.id
+#   resource_id   = aws_api_gateway_resource.ws_proxy_subpath.id
+#   http_method   = "ANY"
+#   authorization = "NONE"
 
-  request_parameters = {
-    "method.request.path.proxy" = true
-  }
-}
+#   request_parameters = {
+#     "method.request.path.proxy" = true
+#   }
+# }
 
-resource "aws_api_gateway_integration" "ws_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.node_api.id
-  resource_id             = aws_api_gateway_resource.ws_proxy_subpath.id
-  http_method             = aws_api_gateway_method.ws_any.http_method
-  integration_http_method = "ANY"
-  type                    = "HTTP_PROXY"
-  uri                     = "http://${aws_eip.ws_ip.public_ip}:8001/{proxy}"
+# resource "aws_api_gateway_integration" "ws_integration" {
+#   rest_api_id             = aws_api_gateway_rest_api.node_api.id
+#   resource_id             = aws_api_gateway_resource.ws_proxy_subpath.id
+#   http_method             = aws_api_gateway_method.ws_any.http_method
+#   integration_http_method = "ANY"
+#   type                    = "HTTP_PROXY"
+#   uri                     = "http://${aws_eip.ws_ip.public_ip}:8001/{proxy}"
 
-  request_parameters = {
-    "integration.request.path.proxy" = "method.request.path.proxy"
-  }
-}
+#   request_parameters = {
+#     "integration.request.path.proxy" = "method.request.path.proxy"
+#   }
+# }
 
 # ==========================================================
 # Deployment + Stage
@@ -96,7 +96,7 @@ resource "aws_api_gateway_integration" "ws_integration" {
 resource "aws_api_gateway_deployment" "api_deploy" {
   depends_on = [
     aws_api_gateway_integration.api_integration,
-    aws_api_gateway_integration.ws_integration
+    # aws_api_gateway_integration.ws_integration
   ]
 
   rest_api_id = aws_api_gateway_rest_api.node_api.id
