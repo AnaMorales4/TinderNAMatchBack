@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 
 const connectDB = require('./db');
 const socketController = require('./controllers/socketController');
+const path = require('path');
 
 dotenv.config();
 
@@ -17,7 +18,8 @@ async function startWebSocket() {
     const server = http.createServer();
 
     const io = new Server(server, {
-      cors: {
+        path: '/chat',
+        cors: {
         origin: '*',
         methods: ['GET', 'POST'],
         credentials: true,
