@@ -23,10 +23,10 @@ const PORT = process.env.API_PORT || process.env.PORT || 8000;
 
 //Middlewares
 app.use(
-    cors({
-        origin: '*',
-        credentials: true
-}));
+  cors({
+    origin: '*',
+    credentials: true
+  }));
 
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -41,7 +41,7 @@ async function startApi() {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`API server running at http://localhost:${PORT}`);
+      console.log(`API server running at http://localhost:${PORT} this is a commit test`);
     });
   } catch (e) {
     console.error('Error starting API server:', e);
