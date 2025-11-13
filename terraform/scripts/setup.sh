@@ -20,6 +20,9 @@ npm install -g pm2
 # Configura entorno de trabajo
 cd /home/ubuntu/app
 
+git config --global --add safe.directory /home/ubuntu/app
+
+
 # Si no hay .git, inicializa el repo
 if [ ! -d ".git" ]; then
   git init
