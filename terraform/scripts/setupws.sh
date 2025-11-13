@@ -71,3 +71,4 @@ pm2 save
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
 EOF
 echo "✅ Setup completado."
+touch /home/ubuntu/app/setup.done
