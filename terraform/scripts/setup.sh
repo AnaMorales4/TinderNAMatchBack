@@ -1,53 +1,47 @@
 #!/bin/bash
-# ========================
-# Setup Node.js App en Ubuntu
-# ========================
-
 set -e
 
-# Actualiza e instala dependencias
 apt update -y
 apt upgrade -y
 apt install -y curl git
 
-# Instala Node.js 18.x
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt install -y nodejs npm
-
-# Instala PM2 globalmente
 npm install -g pm2
 
-# Configura entorno de trabajo
 cd /home/ubuntu
 
-# Clona el repositorio
-git clone -b ${repo_branch} ${repo_url} app
-cd app
+# Si la carpeta ya existe, actualiza el repo
+if [ -d "app/.git" ]; then
+  cd app
+  echo "📦 Actualizando repositorio existente..."
+  git fetch --all
+  git reset --hard origin/${repo_branch}
+else
+  echo "🆕 Clonando repositorio..."
+  git clone -b ${repo_branch} ${repo_url} app
+  cd app
+fi
 
-# Instala dependencias del proyecto
+# Instala dependencias
 npm install
 
-# Crear archivo .env con las variables de entorno
-echo  SECRET_JWT=${secret_jwt} > /home/ubuntu/app/.env
-echo  MONGO_URI=${mongo_uri}  >> /home/ubuntu/app/.env
+# No reescribe .env si ya existe
+if [ ! -f /home/ubuntu/app/.env ]; then
+  echo "🔧 Creando nuevo archivo .env..."
+  echo SECRET_JWT=${secret_jwt} > /home/ubuntu/app/.env
+  echo MONGO_URI=${mongo_uri} >> /home/ubuntu/app/.env
+fi
 
-# Asegura permisos
+# Permisos
 chown ubuntu:ubuntu /home/ubuntu/app/.env
 chmod 600 /home/ubuntu/app/.env
-
-# Cambia propietario de los archivos a ubuntu (por si se ejecuta como root)
 chown -R ubuntu:ubuntu /home/ubuntu/app /home/ubuntu/.pm2 || true
 
-# Ejecuta PM2 como usuario ubuntu
+# Ejecuta PM2
 sudo -u ubuntu -i bash <<'EOF'
 cd /home/ubuntu/app
-
-# Inicia la app en modo dev con PM2
-pm2 start "npm run dev" --name node-backend
-
-# Guarda la configuración de PM2
+pm2 restart node-backend || pm2 start "npm run dev" --name node-backend
 pm2 save
-
-# Configura arranque automático
 pm2 startup systemd -u ubuntu --hp /home/ubuntu
 EOF
