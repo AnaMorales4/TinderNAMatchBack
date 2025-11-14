@@ -44,7 +44,7 @@ async function startApi() {
       console.log(`API server running at http://localhost:${PORT} this is a commit test`);
     });
   } catch (e) {
-    console.error('Error starting API server:', e);
+    console.error('Error starting API server: ', e);
     process.exit(1);
   }
 }
